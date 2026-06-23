@@ -1,0 +1,10 @@
+
+npx playwright test file_name --headed
+npx playwright show-report
+
+npx playwright test ./login.spec.ts --project=chromium --headed
+record test : 
+npx playwright codegen --browser chromium
+npx playwright codegen --target javascript -o "file_name"
+
+
