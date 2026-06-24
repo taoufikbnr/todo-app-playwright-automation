@@ -8,3 +8,4 @@ npx playwright codegen --browser chromium
 npx playwright codegen --target javascript -o "file_name"
 
 
+$0.getRootNode().host

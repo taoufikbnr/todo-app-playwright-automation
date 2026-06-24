@@ -6,3 +6,16 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+
+# raw input URLs
+raw.txt
+raw.text
+
+# generated output
+urls.json
+results.csv
+results.json
+
+# progress / state
+progress.json

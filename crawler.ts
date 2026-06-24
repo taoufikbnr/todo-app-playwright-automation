@@ -1,13 +1,17 @@
 import { chromium } from '@playwright/test';
-import fs from 'fs';
-import { url } from '../url';
-
+import * as fs from 'fs';
+import url from './urls.json';
+import type { Page } from '@playwright/test';
 const URLS = url
-// --------------------
-// load resume index
-// --------------------
-const STATE_FILE = 'progress.json';
 
+const STATE_FILE = 'progress.json';
+const JSON_FILE = "results.json";
+const CSV_FILE = "results.csv";
+type Result = {
+  url: string;
+  popup: boolean;
+};
+let results:Result[] = [];
 function loadProgress() {
   if (!fs.existsSync(STATE_FILE)) return 0;
   return JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8')).index || 0;
@@ -17,15 +21,14 @@ function saveProgress(index: number) {
   fs.writeFileSync(STATE_FILE, JSON.stringify({ index }, null, 2));
 }
 
-// --------------------
-// popup detection
-// --------------------
-async function detectPopup(page) {
+
+async function detectPopup(page:Page) {
+   await page.waitForTimeout(3000);
   return await page.evaluate(() => {
     function scan(root: any): boolean {
       if (!root) return false;
 
-      if (root.querySelector?.('[data-e2e="side-button"]')) {
+      if (root.querySelector?.('.side-button[data-e2e="side-button"]')) {
         return true;
       }
 
@@ -42,10 +45,8 @@ async function detectPopup(page) {
   }).catch(() => false);
 }
 
-// --------------------
-// safe navigation
-// --------------------
-async function safeGoto(page, url) {
+
+async function safeGoto(page:Page, url:string) {
   for (let i = 0; i < 3; i++) {
     try {
       await page.goto(url, {
@@ -60,9 +61,7 @@ async function safeGoto(page, url) {
   return false;
 }
 
-// --------------------
-// main runner
-// --------------------
+
 (async () => {
   const browser = await chromium.connectOverCDP('http://localhost:9222');
   const context = browser.contexts()[0];
@@ -84,21 +83,36 @@ async function safeGoto(page, url) {
       }
 
       const ok = await safeGoto(page, url);
+
       if (!ok) {
         console.log("SKIP (navigation failed):", url);
+
+        if (!page.isClosed())
+          await page.close();
+
+        page = await context.newPage();
+
         continue;
       }
-
       await page.waitForTimeout(2000);
 
       const popup = await detectPopup(page);
 
       console.log(`${url} → ${popup}`);
+      const record = {
+  url,
+  popup
+};
 
-      fs.appendFileSync(
-        'results.csv',
-        `${url},${popup}\n`
-      );
+// avoid duplicates (optional safety)
+    const exists = results.some(r => r.url === url);
+
+    if (!exists) {
+      results.push(record);
+    }
+
+      fs.writeFileSync(JSON_FILE, JSON.stringify(results, null, 2));    
+      fs.appendFileSync(CSV_FILE, `${url},${popup}\n`);
 
       success = true;
 
@@ -106,11 +120,10 @@ async function safeGoto(page, url) {
       console.log(`ERROR: ${url}`, err);
     }
 
-    // save progress AFTER every URL
     if (success) {
       saveProgress(i + 1);
     } else {
-      saveProgress(i); // retry same URL next run
+      saveProgress(i); 
     }
   }
 
