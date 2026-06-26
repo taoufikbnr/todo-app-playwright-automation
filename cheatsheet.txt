@@ -9,3 +9,9 @@ npx playwright codegen --target javascript -o "file_name"
 
 
 $0.getRootNode().host
+
+text=LOGIN
+input:hast-text("LOGIN")
+await expect(page).toHaveTitle(/title/);
+
+ollama run llama3.1:8b qwen2.5:7b

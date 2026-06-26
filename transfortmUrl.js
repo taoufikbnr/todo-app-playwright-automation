@@ -21,7 +21,7 @@ const urls = [...new Set(
       // Remove www. and normalize
       const host = parsed.hostname.replace(/^www\./i, "").toLowerCase();
 
-      return `https://${host}/`;
+      return `${host}`;
     })
 )];
 

@@ -1,8 +1,7 @@
 const fs = require("fs");
 const { chromium } = require("playwright");
-const { CATEGORY_RULES } = require("./categoryData");
+const  CATEGORY_RULES  = require("./categoryData");
 
-const CATEGORY_RULES = CATEGORY_RULES
 
 function classify(meta) {
   const text = [

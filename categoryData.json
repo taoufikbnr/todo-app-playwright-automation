@@ -1,4 +1,4 @@
-export const CATEGORY_RULES = {
+{
 
   "Culture & Leisure": [
     "culture", "leisure", "books", "music", "movie", "cinema",
@@ -94,4 +94,4 @@ export const CATEGORY_RULES = {
     "vertrag", "strom", "gas", "provider", "utility",
     "membership", "plan", "billing", "installation"
   ]
-};
+}

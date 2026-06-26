@@ -1,52 +1,23 @@
-import { test, chromium } from '@playwright/test';
-import { url } from '../url';
-import fs from 'fs';
+import { test } from '@playwright/test';
 
-test('use my real Chrome session', async () => {
-  const context = await chromium.launchPersistentContext(
-    'C:\\Users\\lenovo\\Desktop\\profile',
-    {
-      headless: false,
-      channel: 'chrome',
-      args: ['--profile-directory=Profile 5'],
-    }
-  );
 
-  const page = await context.newPage();
-const urls = url
-  const matchedUrls: string[] = [];
+test('Login',async ({page})=>{
+    
+   await page.goto('https://demo.applitools.com/')
+   await page.pause()
+   await page.locator('id=username').fill('user')
+   await page.locator('id=password').fill('password')
+   await page.waitForSelector('text=Sign in',{timeout:3000})
+   await page.locator('text=Sign in').click()
+})
 
-  for (const url of urls) {
-    await page.goto(url, {
-      waitUntil: 'domcontentloaded',
-      timeout: 30000,
-    });
-
-    await page.waitForTimeout(5000); 
-
-    const popupExists = await page.evaluate(() => {
-      const host = document.querySelector('aside');
-
-      if (!host?.shadowRoot) return false;
-
-      return !!host.shadowRoot.querySelector(
-        '[data-e2e="side-button"]'
-      );
-    });
-
-    console.log(`${url}: ${popupExists}`);
-
-    if (!popupExists) {
-      matchedUrls.push(url);
-    }
-  }
-
-  fs.writeFileSync(
-    'popup-found.txt',
-    matchedUrls.join('\n'),
-    'utf8'
-  );
-
-  console.log(`Found popup on ${matchedUrls.length} sites`);
-
-});
+test.only('Login 2',async({page})=>{
+   await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login')
+   await page.pause();
+   await page.locator('[placeholder="Username"]').fill('admin')
+   await page.locator('[placeholder="Password"]').fill('admin123')
+   await page.locator("button[type=Submit]").click()
+   await page.waitForURL("https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index")
+   await page.locator("#app > div.oxd-layout.orangehrm-upgrade-layout > div.oxd-layout-navigation > header > div.oxd-topbar-header > div.oxd-topbar-header-userarea > ul > li > span > p").click()
+   await page.click("text=Logout")
+})
