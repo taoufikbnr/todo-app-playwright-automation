@@ -106,11 +106,10 @@ async function safeGoto(page, url) {
       console.log(`ERROR: ${url}`, err);
     }
 
-    // save progress AFTER every URL
     if (success) {
       saveProgress(i + 1);
     } else {
-      saveProgress(i); // retry same URL next run
+      saveProgress(i); 
     }
   }
 
